@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation Template/Spring Boot application
+
+Resources:
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: userDB
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: email
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+
+  AWSLambdaDemoFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: AWSLambdaDemoFunction
+      Handler: ua.hudyma.DynamoLambdaHandler::handleRequest
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: yurkolambda
+        S3Key: LambdaTest-1.0-SNAPSHOT.jar
+      Runtime: java17
+      Timeout: 30
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:*
+                Resource: !GetAtt DynamoDBTable.Arn
+
+Outputs:
+  DynamoDBTableName:
+    Description: The name of the DynamoDB table
+    Value: !Ref DynamoDBTable
+
+  LambdaFunctionArn:
+    Description: The ARN of the Lambda function
+    Value: !GetAtt AWSLambdaDemoFunction.Arn
