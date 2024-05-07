@@ -28,7 +28,7 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: yurkolambda
-        S3Key: LambdaTest-1.0-SNAPSHOT.jar
+        S3Key: LambdaTest-1.0-SNAPSHOT.jar # via s3
       Runtime: java17
       Timeout: 30
 

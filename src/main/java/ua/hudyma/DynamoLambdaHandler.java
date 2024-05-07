@@ -17,6 +17,8 @@ import java.util.Map;
 public class DynamoLambdaHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private static final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().build();
     private static final DynamoDBMapper dbMapper = new DynamoDBMapper(client);
+    public static final String APPLICATION_JSON = "application-json";
+
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context) {
         String httpMethod = event.getHttpMethod();
@@ -30,9 +32,9 @@ public class DynamoLambdaHandler implements RequestHandler<APIGatewayProxyReques
             output = "Invalid HTTP Method";
             statusCode = 400;
         }
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Content-Type", "application-json");
-        headers.put("X-Custom-Header", "application-json");
+        Map<String, String> headers = Map.of(
+                "Content-Type", APPLICATION_JSON,
+                "X-Custom-Header", APPLICATION_JSON);
 
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(statusCode)
